@@ -1,0 +1,10 @@
+sources:
+    include:
+        - Packages/App/Sources
+templates:
+    - Templates
+output:
+    path: Packages/App/Sources/App/Generated
+force-parse:
+    - generated
+

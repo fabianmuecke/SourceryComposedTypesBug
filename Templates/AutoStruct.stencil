@@ -1,0 +1,38 @@
+{% for type in types.protocolCompositions|implements:"AutoStruct" %}
+// sourcery:file:{{type.name|split:"."|join:"_"}}+AutoStruct
+// swiftlint:disable all
+// MARK: - {{type.name}} imports
+{% for import in type.imports|sorted:"description" %}
+import {{import.description}}
+{% endfor %}
+
+{{type.accessLevel}} struct {{type.name}}Struct: {{ type.name }} {
+    {% for protocol in type.composedTypes %}
+    {% for property in protocol.variables %}
+    {{type.accessLevel}} var {{property.name}}: {{property.typeName}}
+    {% endfor %}
+    {% endfor %}
+}
+
+{{type.accessLevel}} func make{{type.name}}(
+{% for protocol in type.composedTypes %}
+{% if protocol.variables %}
+{% for property in protocol.variables %}
+{{property.name}}: {{property.typeName}}{% endfor %}{% if forloop.last == false %},{% endif %}
+{% endif %}
+{% endfor %}
+) -> {{type.name}} {
+    {{type.name}}Struct(
+    {% for protocol in type.composedTypes %}
+{% if protocol.variables %}
+{% for property in protocol.variables %}
+{{property.name}}: {{property.name}}{% endfor %}{% if forloop.last == false %},{% endif %}
+{% endif %}
+{% endfor %}
+    )
+}
+
+// swiftlint:enable all
+// sourcery:end
+{% endfor %}
+

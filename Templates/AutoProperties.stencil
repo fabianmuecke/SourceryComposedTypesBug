@@ -1,0 +1,28 @@
+{% for type in types.implementing.AutoPropertiesProtocol %}
+// sourcery:file:{{type.name|split:"."|join:"_"}}+AutoPropertiesProtocol
+// swiftlint:disable all
+
+{% for import in type.imports|sorted:"description" %}
+import {{import.description}}
+{% endfor %}
+
+{% for p in type.storedVariables %}
+{% if p.readAccess != "private" %}
+{% set protoName %}{% if p.annotations.PropertiesProtocol %}{{p.annotations.PropertiesProtocol }}{% else %}{{p.annotations.PropertiesProtocolPrefix|default:"Has"}}{{p.name|titlecase}}{{p.annotations.PropertiesProtocolSuffix}}{% endif %}{% endset %}
+{{p.readAccess}} protocol {{protoName}} { var {{p.name}}: {{p.typeName}} { get } }
+extension {{type.name}}: {{protoName}} {}
+
+{% endif %}
+{% endfor %}
+{{type.accessLevel}} protocol {{type.name}}Properties:
+{% for p in type.storedVariables %}
+{% if p.readAccess != "private" %}
+{% set protoName %}{% if p.annotations.PropertiesProtocol %}{{p.annotations.PropertiesProtocol }}{% else %}{{p.annotations.PropertiesProtocolPrefix|default:"Has"}}{{p.name|titlecase}}{{p.annotations.PropertiesProtocolSuffix}}{% endif %}{% endset %}
+    {% if forloop.counter > 1 %}, {% endif %}{{protoName}}
+{% endif %}
+{% endfor %}
+    {}
+
+// swiftlint:enable all
+// sourcery:end
+{% endfor %}
